@@ -4,13 +4,19 @@ import HttpStatus from "../common/httpStatus.js";
 import HttpMessage from "../constants/httpMessages.js";
 
 //GET -> /api/todos/
-export const getAllToDos = async (_, res) => {
-  const allToDos = await ToDo.find();
+export const getAllToDos = async (req, res) => {
+    if(!req.query.id){
+        const allToDos = await ToDo.find();
+        res.json({ allToDos });
+    }
+    else{
+        const requiredTodo = await ToDo.findById(req.query.id);
+        res.json({ requiredTodo });
+    }
 
-  res.json({ allToDos });
 };
 
-//POST -> /api/todos/:id/
+//POST -> /api/todos/
 export const createToDo = async (req, res) => {
   const newTodo = await ToDo.create(req.body);
 
@@ -24,10 +30,10 @@ export const getToDoById = async (req, res, next) => {
   try {
     const requiredTodo = await ToDo.findById(req.params.id);
     if (!requiredTodo)
-    next({status:  HttpStatus.isNotFound,message: HttpMessage.isNotFound});
+      next({ status: HttpStatus.isNotFound, message: HttpMessage.isNotFound });
     else res.json({ requiredTodo });
   } catch (error) {
-    next({status: HttpStatus.isBadRequest, message :HttpMessage.isNotFound});
+    next({ status: HttpStatus.isBadRequest, message: HttpMessage.isNotFound });
   }
 };
 
@@ -36,12 +42,12 @@ export const deleteToDoById = async (req, res, next) => {
   try {
     const deletedToDo = await ToDo.findByIdAndDelete(req.params.id);
     if (!deletedToDo) {
-        next({status:  HttpStatus.isNotFound,message: HttpMessage.isNotFound});
+      next({ status: HttpStatus.isNotFound, message: HttpMessage.isNotFound });
     } else {
       res.json({ deletedToDoId: deletedToDo.id });
     }
   } catch (error) {
-    next({status: HttpStatus.isBadRequest, message :HttpMessage.isNotFound});
+    next({ status: HttpStatus.isBadRequest, message: HttpMessage.isNotFound });
   }
 };
 
@@ -50,13 +56,13 @@ export const updateToDoById = async (req, res, next) => {
   try {
     const updatedToDo = await ToDo.findById(req.params.id);
     if (!updatedToDo) {
-        next({status:  HttpStatus.isNotFound,message: HttpMessage.isNotFound});
+      next({ status: HttpStatus.isNotFound, message: HttpMessage.isNotFound });
     } else {
       updatedToDo.isCompleted = !updatedToDo.isCompleted;
       updatedToDo.save();
       res.json({ updatedToDo });
     }
   } catch (error) {
-    next({status: HttpStatus.isBadRequest, message :HttpMessage.isNotFound});
+    next({ status: HttpStatus.isBadRequest, message: HttpMessage.isNotFound });
   }
 };
